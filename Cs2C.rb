@@ -5,7 +5,7 @@ require 'date'
 # Selenium::WebDriver::Firefox.driver_path = "geckodriver/geckodriver.exe" neriでコンパイルの時にコメントアウトを取る
 # options = Selenium::WebDriver::Firefox::Options.new(args: ['-headless'])
 
-driver = Selenium::WebDriver.for :firefox# , options: options)
+# driver = Selenium::WebDriver.for :firefox# , options: options)
 d = Date.today
 p d.month
 
@@ -17,22 +17,31 @@ end
 print "Cs2C ～CLASSのスケジュールをCSVにするやつ～ \n\n"
 
 # CLASSにログイン
-# def loginCLASS
-  print "CLASSのログインに使う情報が必要です ※入力された情報は処理終了後に破棄されます\n"
-  print "\n学籍番号を入力してください [Enter]で決定: "
-  id = gets.chomp
-  print "\nパスワードを入力してください [Enter]で決定: "
-  pw = gets.chomp
+class LoginCLASS
+  def importIdPw
+    print "CLASSのログインに使う情報が必要です ※入力された情報は処理終了後に破棄されます\n"
+    print "\n学籍番号を入力してください [Enter]で決定: "
+    @id = gets.chomp
+    print "\nパスワードを入力してください [Enter]で決定: "
+    @pw = gets.chomp
+  end
 #  print "\n自動的にFirefoxを開いて動作を見ることができます．"
-  driver.get "https://class.admin.tus.ac.jp/up/faces/login/Com00501A.jsp"
-  driver.find_element(:name, 'form1:htmlUserId'  ).send_key id
-driver.find_element(:name, 'form1:htmlPassword').send_key pw
-driver.find_element(:name, 'form1:login'       ).click
-sleep 3
+  def open
+    driver = Selenium::WebDriver.for :firefox# , options: options)
+    driver.get "https://class.admin.tus.ac.jp/up/faces/login/Com00501A.jsp"
+    driver.find_element(:name, 'form1:htmlUserId'  ).send_key @id
+    driver.find_element(:name, 'form1:htmlPassword').send_key @pw
+    driver.find_element(:name, 'form1:login'       ).click
+    sleep 3
+  end
+end
 
+login = LoginCLASS.new
+login.importIdPw
+login.open
 # 時間割を取得して二日分CSVに出力 今日から来月末までループ
 
-class GetandPut < String
+class GetandPut
   @@count = 0
   def initialize
     @plain = plain

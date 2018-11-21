@@ -13,12 +13,12 @@ CSV.open("#{Dir.home}/Documents/Cs2C_#{d}.csv", "w") do |header|
 end
 
 print "Cs2C ～CLASSのスケジュールをCSVにするやつ～ \n\n"
-# driver = Selenium::WebDriver.for :firefox# , options: options) (つけよ
 
 print "CLASSのログインに使う情報が必要です ※入力された情報は処理終了後に破棄されます\n"
 
 options = Selenium::WebDriver::Firefox::Options.new(args: ['-headless'])
 driver = Selenium::WebDriver.for(:firefox , options: options)
+
 driver.get "https://class.admin.tus.ac.jp/up/faces/login/Com00501A.jsp"
 
 begin
@@ -30,6 +30,8 @@ begin
   driver.find_element(:name, 'form1:htmlPassword').send_key pw
   driver.find_element(:name, 'form1:login'       ).click
   sleep 3
+
+# ログインできなかった場合例外が出るようにしてやり直させる処理
   driver.find_element(:id, 'form1:Poa00101A:htmlDate_month').enabled?
 rescue
   driver.find_element(:name, 'form1:htmlUserId'  ).clear
@@ -54,15 +56,16 @@ thedayTJ = thedayT[1].split(/\n/)
 theday = Date.strptime(thedayT[0],"%m月%d日")
 nextdayT = t[1].split(/\(.\)\n|神楽坂\(昼間\)\n|葛飾\(昼間\)\n|野田\n|長万部\n|諏訪\n/)
 
-p theday
+p thedayT
+p thedayTJ.length
+p thedayTJ
+p theday.strftime("%Y/%m/%d")
 
-# CSV.open("#{Dir.home}/Documents/Cs2C_#{d}.csv", "a") do
-
-
-#  p thedayT
-#  p thedayTJ.length
-#  p theday.strftime("%Y/%m/%d")
+monthTypes = [["2"], ["4", "6", "9", "11"], ["1", "3", "5", "7", "8", "10", "12"]]
 
 # until m == d.month do 
 #   driver.find_element(:id, "from1:Poa00101A:nextmonth").click
-# end
+
+
+# CSV.open("#{Dir.home}/Documents/Cs2C_#{d}.csv", "a") do
+

@@ -51,7 +51,7 @@ p t
 
 thedayT  = t[0].split(/\(.\)\n|神楽坂\(昼間\)\n|葛飾\(昼間\)\n|野田\n|長万部\n|諏訪\n/)
 thedayTJ = thedayT[1].split(/\n/)
-theday = thedayT[0].strptime("%m月%d日")
+theday = Date.strptime(thedayT[0],"%m月%d日")
 nextdayT = t[1].split(/\(.\)\n|神楽坂\(昼間\)\n|葛飾\(昼間\)\n|野田\n|長万部\n|諏訪\n/)
 
 p theday

@@ -6,6 +6,7 @@ require 'date'
 
 d = Date.today
 p d.month
+endDay = Date.new(d.year, d.month+1, -1)
 
 # csv作成
 CSV.open("#{Dir.home}/Documents/Cs2C_#{d}.csv", "w") do |header|
@@ -43,29 +44,40 @@ end
 m = driver.find_element(:id, 'form1:Poa00101A:htmlDate_month').text.to_i
 p m
 
-day = "1"
+until d == endDay
+  
+  plain = driver.find_element(:xpath, "/html/body/div/div/form[3]/table[2]/tbody/tr/td[2]/table/tbody/tr[3]/td/div/div/table/tbody/tr[2]/td/table/tbody/tr[2]/td/table/tbody").text
 
-driver.find_element(link_text: "#{day}").click
-plain = driver.find_element(:xpath, "/html/body/div/div/form[3]/table[2]/tbody/tr/td[2]/table/tbody/tr[3]/td/div/div/table/tbody/tr[2]/td/table/tbody/tr[2]/td/table/tbody").text
+  t = plain.tr('０-９ａ-ｚＡ-Ｚ．（）　－','0-9a-zA-Z.() -').split("\n\n")
+  p t
 
-t = plain.tr('０-９ａ-ｚＡ-Ｚ．（）　－','0-9a-zA-Z.() -').split("\n\n")
-p t
-
-thedayT  = t[0].split(/\(.\)\n|神楽坂\(昼間\)\n|葛飾\(昼間\)\n|野田\n|長万部\n|諏訪\n/)
-thedayTJ = thedayT[1].split(/\n/)
-theday = Date.strptime(thedayT[0],"%m月%d日")
-nextdayT = t[1].split(/\(.\)\n|神楽坂\(昼間\)\n|葛飾\(昼間\)\n|野田\n|長万部\n|諏訪\n/)
+  thedayT  = t[0].split(/\(.\)\n|神楽坂\(昼間\)\n|葛飾\(昼間\)\n|野田\n|長万部\n|諏訪\n/)
+  thedayTJ = thedayT[1].split(/\n/)
+  theday = Date.strptime(thedayT[0],"%m月%d日")
+  nextdayT = t[1].split(/\(.\)\n|神楽坂\(昼間\)\n|葛飾\(昼間\)\n|野田\n|長万部\n|諏訪\n/)
 
 p thedayT
 p thedayTJ.length
 p thedayTJ
 p theday.strftime("%Y/%m/%d")
 
-monthTypes = [["2"], ["4", "6", "9", "11"], ["1", "3", "5", "7", "8", "10", "12"]]
 
-# until m == d.month do 
-#   driver.find_element(:id, "from1:Poa00101A:nextmonth").click
+#  CSV.open("#{Dir.home}/Documents/Cs2C_#{d}.csv", "a") do
+#  end
 
+  d = d+2
+  driver.find_element(link_text: "#{d.day}").click
+  sleep 3
+end
+driver.quit
 
-# CSV.open("#{Dir.home}/Documents/Cs2C_#{d}.csv", "a") do
+print "時間割は #{Dir.home}/Documents/Cs2C_#{d}.csv に保存されました\n\n"
+print "Google カレンダーにインポートするページを開きますか？ y/n [Enter]で決定\n"
+importYN = gets.chomp
 
+if importYN == "y" 
+  driver = Selenium::WebDriver.for firefox 
+  driver.get "https://accounts.google.com/signin/v2/identifier?service=cl&passive=1209600&osid=1&continue=https%3A%2F%2Fcalendar.google.com%2Fcalendar%2Fr%2Fsettings%2Fexport%3Fhl%3Dja%26pli%3D1%26t%3DAKUaPmYIRBe3_yaaGlejZty0zA2lbUaPkI_6HELntaaPTRigqhwXXeokgrIYjbVOINuuYdVw_riL9vtUI_U1cgxMSlXPG5u9IA%253D%253D&followup=https%3A%2F%2Fcalendar.google.com%2Fcalendar%2Fr%2Fsettings%2Fexport%3Fhl%3Dja%26pli%3D1%26t%3DAKUaPmYIRBe3_yaaGlejZty0zA2lbUaPkI_6HELntaaPTRigqhwXXeokgrIYjbVOINuuYdVw_riL9vtUI_U1cgxMSlXPG5u9IA%253D%253D&hl=ja&scc=1&flowName=GlifWebSignIn&flowEntry=ServiceLogin"
+else
+  exit
+end

@@ -3,9 +3,7 @@ require 'csv'
 require 'date'
 
 # Selenium::WebDriver::Firefox.driver_path = "geckodriver/geckodriver.exe" neriでコンパイルの時にコメントアウトを取る
-# options = Selenium::WebDriver::Firefox::Options.new(args: ['-headless'])
 
-# driver = Selenium::WebDriver.for :firefox# , options: options)
 d = Date.today
 p d.month
 
@@ -15,9 +13,11 @@ CSV.open("#{Dir.home}/Documents/Cs2C_#{d}.csv", "w") do |header|
 end
 
 print "Cs2C ～CLASSのスケジュールをCSVにするやつ～ \n\n"
+# driver = Selenium::WebDriver.for :firefox# , options: options) (つけよ
 
-# CLASSにログイン
-class LoginCLASS
+class Scrape
+
+  # CLASSにログイン
   def importIdPw
     print "CLASSのログインに使う情報が必要です ※入力された情報は処理終了後に破棄されます\n"
     print "\n学籍番号を入力してください [Enter]で決定: "
@@ -27,34 +27,24 @@ class LoginCLASS
   end
 #  print "\n自動的にFirefoxを開いて動作を見ることができます．"
   def open
-    driver = Selenium::WebDriver.for :firefox# , options: options)
-    driver.get "https://class.admin.tus.ac.jp/up/faces/login/Com00501A.jsp"
-    driver.find_element(:name, 'form1:htmlUserId'  ).send_key @id
-    driver.find_element(:name, 'form1:htmlPassword').send_key @pw
-    driver.find_element(:name, 'form1:login'       ).click
+    # options = Selenium::WebDriver::Firefox::Options.new(args: ['-headless'])
+    @driver = Selenium::WebDriver.for :firefox# , options: options) (つけよ
+    @driver.get "https://class.admin.tus.ac.jp/up/faces/login/Com00501A.jsp"
+    @driver.find_element(:name, 'form1:htmlUserId'  ).send_key @id
+    @driver.find_element(:name, 'form1:htmlPassword').send_key @pw
+    @driver.find_element(:name, 'form1:login'       ).click
     sleep 3
-  end
-end
-
-login = LoginCLASS.new
-login.importIdPw
-login.open
-# 時間割を取得して二日分CSVに出力 今日から来月末までループ
-
-class GetandPut
-  @@count = 0
-  def initialize
-    @plain = plain
   end
 
   def checkMD
-    m = driver.find_element(:id, 'form1:Poa00101A:htmlDate_month').text.to_i
+    m = @driver.find_element(:id, 'form1:Poa00101A:htmlDate_month').text.to_i
     p m
   end
+  # 時間割を取得して二日分CSVに出力 今日から来月末までループ
 
-  def getTimetable(day)
-    driver.find_element(link_text: "#{day}").click
-    @plain = driver.find_element(:xpath, "/html/body/div/div/form[3]/table[2]/tbody/tr/td[2]/table/tbody/tr[3]/td/div/div/table/tbody/tr[2]/td/table/tbody/tr[2]/td/table/tbody").text
+  def getTimetable(12)
+    @driver.find_element(link_text: "#{day}").click
+    @plain = @driver.find_element(:xpath, "/html/body/div/div/form[3]/table[2]/tbody/tr/td[2]/table/tbody/tr[3]/td/div/div/table/tbody/tr[2]/td/table/tbody/tr[2]/td/table/tbody").text
     @@count += 1
   end
 
@@ -68,16 +58,23 @@ class GetandPut
     nextdayT = t[1].split(/\(.\)\n|神楽坂\(昼間\)\n|葛飾\(昼間\)\n|野田\n|長万部\n|諏訪\n/)
 
   end
+ 
+  def exportToCSV
+    CSV.open("#{Dir.home}/Documents/Cs2C_#{d}.csv", "a") do
+
+    end
+  end
+
+end
+
+doing = Scrape.new
+doing.importIdPw
+doing.open
+doing.getTimetable
 #  p thedayT
 #  p thedayTJ.length
 #  p theday.strftime("%Y/%m/%d")
-end
 
 # until m == d.month do 
 #   driver.find_element(:id, "from1:Poa00101A:nextmonth").click
 # end
-# CSV出力
-
-GetandPut.new
-
-driver.quit

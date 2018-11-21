@@ -16,7 +16,6 @@ print "Cs2C ～CLASSのスケジュールをCSVにするやつ～ \n\n"
 # driver = Selenium::WebDriver.for :firefox# , options: options) (つけよ
 
 class Scrape
-
   # CLASSにログイン
   def importIdPw
     print "CLASSのログインに使う情報が必要です ※入力された情報は処理終了後に破棄されます\n"
@@ -25,10 +24,11 @@ class Scrape
     print "\nパスワードを入力してください [Enter]で決定: "
     @pw = gets.chomp
   end
-#  print "\n自動的にFirefoxを開いて動作を見ることができます．"
+  
   def open
-    # options = Selenium::WebDriver::Firefox::Options.new(args: ['-headless'])
-    @driver = Selenium::WebDriver.for :firefox# , options: options) (つけよ
+    # Selenium::WebDriver::Firefox.driver_path = "geckodriver/geckodriver.exe" neriでコンパイルの時にコメントアウトを取る
+    options = Selenium::WebDriver::Firefox::Options.new(args: ['-headless'])
+    @driver = Selenium::WebDriver.for(:firefox , options: options)
     @driver.get "https://class.admin.tus.ac.jp/up/faces/login/Com00501A.jsp"
     @driver.find_element(:name, 'form1:htmlUserId'  ).send_key @id
     @driver.find_element(:name, 'form1:htmlPassword').send_key @pw
@@ -42,13 +42,13 @@ class Scrape
   end
   # 時間割を取得して二日分CSVに出力 今日から来月末までループ
 
-  def getTimetable(12)
+  def getTimetable(day)
     @driver.find_element(link_text: "#{day}").click
     @plain = @driver.find_element(:xpath, "/html/body/div/div/form[3]/table[2]/tbody/tr/td[2]/table/tbody/tr[3]/td/div/div/table/tbody/tr[2]/td/table/tbody/tr[2]/td/table/tbody").text
-    @@count += 1
   end
 
   def splitTimetable
+    require 'date'
     t = @plain.tr('０-９ａ-ｚＡ-Ｚ．（）　－','0-9a-zA-Z.() -').split("\n\n")
     p t
 
@@ -70,7 +70,8 @@ end
 doing = Scrape.new
 doing.importIdPw
 doing.open
-doing.getTimetable
+doing.getTimetable(12)
+doing.splitTimetable
 #  p thedayT
 #  p thedayTJ.length
 #  p theday.strftime("%Y/%m/%d")

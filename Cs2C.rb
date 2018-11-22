@@ -4,13 +4,21 @@ require 'date'
 
 # Selenium::WebDriver::Firefox.driver_path = "geckodriver/geckodriver.exe" neriでコンパイルの時にコメントアウトを取る
 
+# 時間いろいろ
 d = Date.today
 p d.month
 endDay = Date.new(d.year, d.month+1, -1)
+_1gen = [ "8:50:00", "10:30:00",  "0:00:00"]
+_2gen = ["10:30:00", "12:00:00", "10:20:00"]
+_3gen = ["12:50:00", "14:20:00", "12:40:00"]
+_4gen = ["14:30:00", "16:00:00", "14:20:00"]
+_5gen = ["16:10:00", "17:40:00", "16:00:00"]
+_6gen = ["18:00:00", "19:30:00", "17:50:00"]
+_7gen = ["19:40:00", "21:10:00", "19:30:00"]
 
 # csv作成
 CSV.open("#{Dir.home}/Documents/Cs2C_#{d}.csv", "w") do |header|
-  header << ["件名","開始日","開始時刻","終了日","終了時刻","終日イベント","アラーム オン/オフ","アラーム日付","アラーム時刻","場所","内容"]
+  header << ["件名","開始日","開始時刻","終了日","終了時刻","終日イベント","アラーム オン/オフ","アラーム日付","アラーム時刻","内容"]
 end
 
 print "Cs2C ～CLASSのスケジュールをCSVにするやつ～ \n\n"
@@ -50,20 +58,67 @@ p m
 
   t = plain.tr('０-９ａ-ｚＡ-Ｚ．（）　－','0-9a-zA-Z.() -').split("\n\n")
   p t
+  outputArr = Array.new(2)
+  2.times do |i|
+    timetable  = t[i].split(/\(.\)\n|神楽坂\(昼間\)\n|葛飾\(昼間\)\n|野田\n|長万部\n|諏訪\n/)
+    p timetable
+    numOfClasses = timetable.length-1
+    p numofClasses
+    theday = Date.strptime(timetable[0],"%m月%d日")
+    thedayYmd = theday.strftime("%Y/%m/%d")
+    classes = Array.new(10)
 
-  thedayT  = t[0].split(/\(.\)\n|神楽坂\(昼間\)\n|葛飾\(昼間\)\n|野田\n|長万部\n|諏訪\n/)
-  thedayTJ = thedayT[1].split(/\n/)
-  theday = Date.strptime(thedayT[0],"%m月%d日")
-  nextdayT = t[1].split(/\(.\)\n|神楽坂\(昼間\)\n|葛飾\(昼間\)\n|野田\n|長万部\n|諏訪\n/)
+    numofClasses.times do |j|
+      jugyo = timetable[j+1].split(/\n/)
+      case jugyo[0]
+      when "1限目"
+        classes[2], classes[4], classes[8] = _1gen
+      when "2限目"
+        classes[2], classes[4], classes[8] = _2gen
+      when "3限目"
+        classes[2], classes[4], classes[8] = _3gen
+      when "4限目"
+        classes[2], classes[4], classes[8] = _4gen
+      when "5限目"
+        classes[2], classes[4], classes[8] = _5gen
+      when "6限目"
+        classes[2], classes[4], classes[8] = _6gen
+      when "7限目"
+        classes[2], classes[4], classes[8] = _7gen
+      else
+        jugyo[1] = "授業なし"
+      end
 
-p thedayT
-p thedayT.length-1 #時限の数
-p thedayTJ
-p theday.strftime("%Y/%m/%d")
+      classes[0] = jugyo[1]
+      classes[1], classes[3], classes[7] = thedayYmd, thedayYmd, thedayYmd
+      
+      if classes[0].include?("授業なし")
+        classes[2] = "00:00:00"
+
+      else
+        classes[9] = jugyo[2]
+      end
+
+    end
+    outputArr[i] = classes
+  end
+    
+
+#  thedayT  = t[0].split(/\(.\)\n|神楽坂\(昼間\)\n|葛飾\(昼間\)\n|野田\n|長万部\n|諏訪\n/)
+#  thedayTJ = thedayT[1].split(/\n/)
+#  theday = Date.strptime(thedayT[0],"%m月%d日")
+
+# p thedayT
+# p thedayT.length-1 #時限の数
+# p thedayTJ
+# p theday.strftime("%Y/%m/%d")
 
 
-#  CSV.open("#{Dir.home}/Documents/Cs2C_#{d}.csv", "a") do
-#  end
+  CSV.open("#{Dir.home}/Documents/Cs2C_#{d}.csv", "a") do |csv|
+    outputArr.each do |data|
+      csv << data
+    end
+  end
 
   d = d+2
   driver.find_element(link_text: "#{d.day}").click
@@ -72,7 +127,7 @@ p theday.strftime("%Y/%m/%d")
 driver.quit
 
 print "時間割は #{Dir.home}/Documents/Cs2C_#{d}.csv に保存されました\n\n"
-print "Google カレンダーにインポートするページを開きますか？ (Google アカウントが必要です) y/n [Enter]で決定\n"
+print "Googleカレンダーにインポートするページを開きますか？(Google アカウントが必要です) y/n [Enter]で決定\n"
 importYN = gets.chomp
 
 if importYN == "y" 

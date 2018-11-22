@@ -44,7 +44,7 @@ end
 m = driver.find_element(:id, 'form1:Poa00101A:htmlDate_month').text.to_i
 p m
 
-until d == endDay
+# until d == endDay
   
   plain = driver.find_element(:xpath, "/html/body/div/div/form[3]/table[2]/tbody/tr/td[2]/table/tbody/tr[3]/td/div/div/table/tbody/tr[2]/td/table/tbody/tr[2]/td/table/tbody").text
 
@@ -57,7 +57,7 @@ until d == endDay
   nextdayT = t[1].split(/\(.\)\n|神楽坂\(昼間\)\n|葛飾\(昼間\)\n|野田\n|長万部\n|諏訪\n/)
 
 p thedayT
-p thedayTJ.length
+p thedayT.length-1 #時限の数
 p thedayTJ
 p theday.strftime("%Y/%m/%d")
 
@@ -68,16 +68,18 @@ p theday.strftime("%Y/%m/%d")
   d = d+2
   driver.find_element(link_text: "#{d.day}").click
   sleep 3
-end
+# end
 driver.quit
 
 print "時間割は #{Dir.home}/Documents/Cs2C_#{d}.csv に保存されました\n\n"
-print "Google カレンダーにインポートするページを開きますか？ y/n [Enter]で決定\n"
+print "Google カレンダーにインポートするページを開きますか？ (Google アカウントが必要です) y/n [Enter]で決定\n"
 importYN = gets.chomp
 
 if importYN == "y" 
-  driver = Selenium::WebDriver.for firefox 
+  driver = Selenium::WebDriver.for :firefox
   driver.get "https://accounts.google.com/signin/v2/identifier?service=cl&passive=1209600&osid=1&continue=https%3A%2F%2Fcalendar.google.com%2Fcalendar%2Fr%2Fsettings%2Fexport%3Fhl%3Dja%26pli%3D1%26t%3DAKUaPmYIRBe3_yaaGlejZty0zA2lbUaPkI_6HELntaaPTRigqhwXXeokgrIYjbVOINuuYdVw_riL9vtUI_U1cgxMSlXPG5u9IA%253D%253D&followup=https%3A%2F%2Fcalendar.google.com%2Fcalendar%2Fr%2Fsettings%2Fexport%3Fhl%3Dja%26pli%3D1%26t%3DAKUaPmYIRBe3_yaaGlejZty0zA2lbUaPkI_6HELntaaPTRigqhwXXeokgrIYjbVOINuuYdVw_riL9vtUI_U1cgxMSlXPG5u9IA%253D%253D&hl=ja&scc=1&flowName=GlifWebSignIn&flowEntry=ServiceLogin"
 else
+  print "プログラムを終了します"
+  sleep 2
   exit
 end

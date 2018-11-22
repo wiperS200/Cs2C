@@ -6,7 +6,7 @@ require 'date'
 
 # 時間いろいろ
 d = Date.today
-p d.month
+
 endDay = Date.new(d.year, d.month+1, -1)
 _1gen = [ "8:50:00", "10:30:00",  "0:00:00"]
 _2gen = ["10:30:00", "12:00:00", "10:20:00"]
@@ -51,24 +51,25 @@ end
 
 m = driver.find_element(:id, 'form1:Poa00101A:htmlDate_month').text.to_i
 p m
+countD = d + 6 #<-- 足してるのは一時的な処理
 
-# until d == endDay
-  
+# until countD == endDay
+  driver.find_element(link_text: "#{countD.day}").click
+
   plain = driver.find_element(:xpath, "/html/body/div/div/form[3]/table[2]/tbody/tr/td[2]/table/tbody/tr[3]/td/div/div/table/tbody/tr[2]/td/table/tbody/tr[2]/td/table/tbody").text
-
   t = plain.tr('０-９ａ-ｚＡ-Ｚ．（）　－','0-9a-zA-Z.() -').split("\n\n")
   p t
-  outputArr = Array.new(2)
+  outputs = Array.new()
   2.times do |i|
     timetable  = t[i].split(/\(.\)\n|神楽坂\(昼間\)\n|葛飾\(昼間\)\n|野田\n|長万部\n|諏訪\n/)
-    p timetable
     numOfClasses = timetable.length-1
-    p numofClasses
     theday = Date.strptime(timetable[0],"%m月%d日")
     thedayYmd = theday.strftime("%Y/%m/%d")
-    classes = Array.new(10)
+    outputArr = Array.new
 
-    numofClasses.times do |j|
+    numOfClasses.times do |j|
+
+      classes = Array.new(10)
       jugyo = timetable[j+1].split(/\n/)
       case jugyo[0]
       when "1限目"
@@ -94,34 +95,37 @@ p m
       
       if classes[0].include?("授業なし")
         classes[2] = "00:00:00"
-
+        classes[5] = "true"
+        classes[6] = "false"
       else
+        classes[5] = "false"
+        classes[6] = "true"
         classes[9] = jugyo[2]
       end
+      p "classes#{j}", classes
+      outputArr[j] = classes
 
+      if j+1 == numOfClasses
+        p "outputArr", outputArr 
+      end
+
+      outputs[i] = outputArr
+      p "outputs#{i}", outputs
     end
-    outputArr[i] = classes
   end
     
 
-#  thedayT  = t[0].split(/\(.\)\n|神楽坂\(昼間\)\n|葛飾\(昼間\)\n|野田\n|長万部\n|諏訪\n/)
-#  thedayTJ = thedayT[1].split(/\n/)
-#  theday = Date.strptime(thedayT[0],"%m月%d日")
-
-# p thedayT
-# p thedayT.length-1 #時限の数
-# p thedayTJ
-# p theday.strftime("%Y/%m/%d")
-
 
   CSV.open("#{Dir.home}/Documents/Cs2C_#{d}.csv", "a") do |csv|
-    outputArr.each do |data|
-      csv << data
+    outputs.each do |days|
+      days.each do |classes|
+        csv << classes
+      end
     end
   end
 
-  d = d+2
-  driver.find_element(link_text: "#{d.day}").click
+  countD += 2
+#  driver.find_element(link_text: "#{d.day}").click
   sleep 3
 # end
 driver.quit

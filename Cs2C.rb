@@ -30,6 +30,7 @@ driver = Selenium::WebDriver.for(:firefox , options: options)
 driver.get "https://class.admin.tus.ac.jp/up/faces/login/Com00501A.jsp"
 
 print "CLASSのログインに使う情報が必要です ※入力された情報は処理終了後に破棄されます\n"
+
 begin
   print "\n学籍番号を入力してください [Enter]で決定: "
   id = gets.chomp
@@ -52,7 +53,7 @@ end
 countD = today
 
 until countD == nMonthEndDay + 1 || countD == nMonthEndDay + 2
-
+  print "\n#{countD.month}月#{countD.day}日とその翌日の時間割を取得\n"
   plain = driver.find_element(:xpath, "/html/body/div/div/form[3]/table[2]/tbody/tr/td[2]/table/tbody/tr[3]/td/div/div/table/tbody/tr[2]/td/table/tbody/tr[2]/td/table/tbody").text
   t = plain.tr('０-９ａ-ｚＡ-Ｚ．（）　－','0-9a-zA-Z.() -').split("\n\n")
   finalOutputs = Array.new(2)
@@ -100,15 +101,9 @@ until countD == nMonthEndDay + 1 || countD == nMonthEndDay + 2
         classes[6] = "true"
         classes[9] = jugyo[2]
       end
-      p "classes#{j}", classes
       outputArr[j] = classes
 
-      if j+1 == numOfClasses
-        p "outputArr", outputArr
-      end
-
       finalOutputs[i] = outputArr
-      p "finalOutputs#{i}", finalOutputs
     end
   end
     

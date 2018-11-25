@@ -6,7 +6,8 @@ require 'date'
 
 # 時間いろいろ
 today = Date.today
-nMonthDate = today >> 1
+limitMonths = 2
+nMonthDate = today >> limitMonths-1
 nMonthFirstDay = Date.new(nMonthDate.year, nMonthDate.month,  1)
 nMonthEndDay   = Date.new(nMonthDate.year, nMonthDate.month, -1)
 _1gen = [ "8:50:00", "10:30:00",  "0:00:00"]
@@ -42,7 +43,7 @@ begin
   sleep 3
 
 # ログインできなかった場合例外が出るようにしてやり直させる処理
-  driver.find_element(:id, 'form1:Poa00101A:htmlDate_month').enabled?
+  check = driver.find_element(:id, 'form1:Poa00101A:htmlDate_month')
 rescue
   driver.find_element(:name, 'form1:htmlUserId'  ).clear
   driver.find_element(:name, 'form1:htmlPassword').clear
@@ -50,12 +51,26 @@ rescue
   retry
 end
 
+if driver.find_element(:id, "form1:Poa00201A:htmlParentTable:3:htmlHeaderTbl:0:htmlHeaderCol").text == "休講"
+  5.times do |i|
+    begin
+      kyuko = driver.find_element(:id, "form1:Poa00201A:htmlParentTable:3:htmlDetailTbl:#{i}:htmlTitleCol1").text.split(/　/)
+    rescue
+      break
+    end
+    p kyuko
+  end
+else
+  print "休講情報はありません"
+end
+
+
 countD = today
 
 until countD == nMonthEndDay + 1 || countD == nMonthEndDay + 2
   print "\n#{countD.month}月#{countD.day}日とその翌日の時間割を取得\n"
-  plain = driver.find_element(:xpath, "/html/body/div/div/form[3]/table[2]/tbody/tr/td[2]/table/tbody/tr[3]/td/div/div/table/tbody/tr[2]/td/table/tbody/tr[2]/td/table/tbody").text
-  t = plain.tr('０-９ａ-ｚＡ-Ｚ．（）　－','0-9a-zA-Z.() -').split("\n\n")
+  plainT = driver.find_element(:xpath, "/html/body/div/div/form[3]/table[2]/tbody/tr/td[2]/table/tbody/tr[3]/td/div/div/table/tbody/tr[2]/td/table/tbody/tr[2]/td/table/tbody").text
+  t = plainT.tr('０-９ａ-ｚＡ-Ｚ．（）　－','0-9a-zA-Z.() -').split("\n\n")
   finalOutputs = Array.new(2)
 
   2.times do |i|

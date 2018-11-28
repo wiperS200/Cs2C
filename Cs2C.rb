@@ -1,6 +1,7 @@
 require 'selenium-webdriver'
 require 'csv'
 require 'date'
+require 'io/console'
 
 # Selenium::WebDriver::Firefox.driver_path = "geckodriver/geckodriver.exe" neriでコンパイルの際はコメントアウトを取る
 
@@ -32,17 +33,17 @@ driver.get "https://class.admin.tus.ac.jp/up/faces/login/Com00501A.jsp"
 
 print "CLASSのログインに使う情報が必要です ※入力された情報は処理終了後に破棄されます\n"
 
+
 begin
   print "\n学籍番号を入力してください [Enter]で決定: "
   id = gets.chomp
-  print "\nパスワードを入力してください [Enter]で決定: "
-  pw = gets.chomp
+  print "\nパスワードを入力してください(表示されません) [Enter]で決定: "
+  pw = STDIN.noecho(&:gets).chomp
   driver.find_element(:name, 'form1:htmlUserId'  ).send_key id
   driver.find_element(:name, 'form1:htmlPassword').send_key pw
   driver.find_element(:name, 'form1:login'       ).click
   sleep 3
-
-# ログインできなかった場合例外が出るようにしてやり直させる処理
+  # ログインできなかった場合例外が出るようにしてやり直させる処理
   check = driver.find_element(:id, 'form1:Poa00101A:htmlDate_month')
 rescue
   driver.find_element(:name, 'form1:htmlUserId'  ).clear
@@ -51,13 +52,21 @@ rescue
   retry
 end
 
+# 休講情報
 if driver.find_element(:id, "form1:Poa00201A:htmlParentTable:3:htmlHeaderTbl:0:htmlHeaderCol").text == "休講"
   5.times do |i|
     begin
-      kyuko = driver.find_element(:id, "form1:Poa00201A:htmlParentTable:3:htmlDetailTbl:#{i}:htmlTitleCol1").text.split(/　/)
+      kyuko = driver.find_element(:id, "form1:Poa00201A:htmlParentTable:3:htmlDetailTbl:#{i}:htmlTitleCol1").text.tr('０-９ａ-ｚＡ-Ｚ．（）－','0-9a-zA-Z.()-').split(/　/)
     rescue
       break
     end
+
+    if kyuko.length == 6
+      kyuko[4] = kyuko[4..5].join(' ')
+      kyuko.pop
+    end
+#    ↓曜日と年の処理要工夫
+#    kyukoDay = Date.strptime(kyuko[1],"%m月%d日"); p kyukoDay
     p kyuko
   end
 else

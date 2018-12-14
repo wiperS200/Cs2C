@@ -19,10 +19,12 @@ _5gen = ["16:10:00", "17:40:00", "16:00:00"]
 _6gen = ["18:00:00", "19:30:00", "17:50:00"]
 _7gen = ["19:40:00", "21:10:00", "19:30:00"]
 
+
 # csv作成
 CSV.open("#{Dir.home}/Documents/Cs2C_#{today}.csv", "w") do |header|
   header << ["件名","開始日","開始時刻","終了日","終了時刻","終日イベント","アラーム オン/オフ","アラーム日付","アラーム時刻","内容"]
 end
+
 
 print "Cs2C ～CLASSのスケジュールをCSVにするやつ～ \n\n"
 
@@ -31,16 +33,17 @@ driver = Selenium::WebDriver.for(:firefox , options: options)
 
 driver.get "https://class.admin.tus.ac.jp/up/faces/login/Com00501A.jsp"
 
+
 print "CLASSのログインに使う情報が必要です ※入力された情報は処理終了後に破棄されます\n"
 
-
 begin
-  print "\n学籍番号を入力してください [Enter]で決定: "
-  id = gets.chomp
-  print "\nパスワードを入力してください(表示されません) [Enter]で決定: "
-  pw = STDIN.noecho(&:gets).chomp
-  driver.find_element(:name, 'form1:htmlUserId'  ).send_key id
-  driver.find_element(:name, 'form1:htmlPassword').send_key pw
+  print "\n学籍番号を入力してください [Enter]で決定: \n"
+  id = gets
+  print "\nパスワードを入力してください(表示されません) [Enter]で決定: \n"
+  pw = STDIN.noecho(&:gets)
+  puts
+  driver.find_element(:name, 'form1:htmlUserId'  ).send_key id.chomp
+  driver.find_element(:name, 'form1:htmlPassword').send_key pw.chomp
   driver.find_element(:name, 'form1:login'       ).click
   sleep 3
   # ログインできなかった場合例外が出るようにしてやり直させる処理
@@ -52,11 +55,13 @@ rescue
   retry
 end
 
-# 休講情報
-if driver.find_element(:id, "form1:Poa00201A:htmlParentTable:3:htmlHeaderTbl:0:htmlHeaderCol").text == "休講"
-  5.times do |i|
+
+def getKyuko(i)
+  5.times do |j|
     begin
-      kyuko = driver.find_element(:id, "form1:Poa00201A:htmlParentTable:3:htmlDetailTbl:#{i}:htmlTitleCol1").text.tr('０-９ａ-ｚＡ-Ｚ．（）－','0-9a-zA-Z.()-').split(/　/)
+      p driver.find_element(:id, "form1:Poa00201A:htmlParentTable:#{i}:htmlDetailTbl:#{j}:htmlTitleCol1").text.tr('０-９ａ-ｚＡ-Ｚ．（）－','0-9a-zA-Z.()-').split(/　/)
+
+      kyuko = driver.find_element(:id, "form1:Poa00201A:htmlParentTable:#{i}:htmlDetailTbl:#{j}:htmlTitleCol1").text.tr('０-９ａ-ｚＡ-Ｚ．（）－','0-9a-zA-Z.()-').split(/　/)
     rescue
       break
     end
@@ -69,6 +74,13 @@ if driver.find_element(:id, "form1:Poa00201A:htmlParentTable:3:htmlHeaderTbl:0:h
 #    kyukoDay = Date.strptime(kyuko[1],"%m月%d日"); p kyukoDay
     p kyuko
   end
+end
+
+#休講情報
+if driver.find_element(:id, "form1:Poa00201A:htmlParentTable:3:htmlHeaderTbl:0:htmlHeaderCol").text == "休講"
+  getKyuko(3)
+elsif driver.find_element(:id, "form1:Poa00201A:htmlParentTable:4:htmlHeaderTbl:0:htmlHeaderCol").text == "休講"
+  getKyuko(4)
 else
   print "休講情報はありません"
 end
@@ -149,13 +161,12 @@ until countD == nMonthEndDay + 1 || countD == nMonthEndDay + 2
   driver.find_element(link_text: "#{countD.day}").click
   sleep 3
 end
-
 driver.quit
 
-print "時間割は #{Dir.home}/Documents/Cs2C_#{today}.csv に保存されました\n\n"
-print "Googleカレンダーにインポートするページを開きますか？(Google アカウントが必要です) y/n [Enter]で決定\n"
+j
+print "時間割は #{Dir.home}/Documents/Cs2C_#{today}.csv に保存されました\n"
+print "\nGoogleカレンダーにインポートするページを開きますか？(Google アカウントが必要です) y/n [Enter]で決定\n"
 importYN = gets.chomp
-
 if importYN == "y"
   driver = Selenium::WebDriver.for :firefox
   driver.get "https://accounts.google.com/signin/v2/identifier?service=cl&passive=1209600&osid=1&continue=https%3A%2F%2Fcalendar.google.com%2Fcalendar%2Fr%2Fsettings%2Fexport%3Fhl%3Dja%26pli%3D1%26t%3DAKUaPmYIRBe3_yaaGlejZty0zA2lbUaPkI_6HELntaaPTRigqhwXXeokgrIYjbVOINuuYdVw_riL9vtUI_U1cgxMSlXPG5u9IA%253D%253D&followup=https%3A%2F%2Fcalendar.google.com%2Fcalendar%2Fr%2Fsettings%2Fexport%3Fhl%3Dja%26pli%3D1%26t%3DAKUaPmYIRBe3_yaaGlejZty0zA2lbUaPkI_6HELntaaPTRigqhwXXeokgrIYjbVOINuuYdVw_riL9vtUI_U1cgxMSlXPG5u9IA%253D%253D&hl=ja&scc=1&flowName=GlifWebSignIn&flowEntry=ServiceLogin"

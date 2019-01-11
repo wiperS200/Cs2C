@@ -7,10 +7,10 @@ require 'io/console'
 
 # 時間いろいろ
 today = Date.today
-limitMonths = 2
-nMonthDate = today >> limitMonths-1
-nMonthFirstDay = Date.new(nMonthDate.year, nMonthDate.month,  1)
-nMonthEndDay   = Date.new(nMonthDate.year, nMonthDate.month, -1)
+rangeOfMonths = 2
+limitMonthDate = today >> rangeOfMonths-1
+limitMonthFirstDay = Date.new(limitMonthDate.year, limitMonthDate.month,  1)
+limitMonthEndDay   = Date.new(limitMonthDate.year, limitMonthDate.month, -1)
 _1gen = [ "8:50:00", "10:30:00",  "0:00:00"]
 _2gen = ["10:30:00", "12:00:00", "10:20:00"]
 _3gen = ["12:50:00", "14:20:00", "12:40:00"]
@@ -88,17 +88,24 @@ end
 
 countD = today
 
-until countD == nMonthEndDay + 1 || countD == nMonthEndDay + 2
+until countD == limitMonthEndDay + 1 || countD == limitMonthEndDay + 2
   print "\n#{countD.month}月#{countD.day}日とその翌日の時間割を取得\n"
   plainT = driver.find_element(:xpath, "/html/body/div/div/form[3]/table[2]/tbody/tr/td[2]/table/tbody/tr[3]/td/div/div/table/tbody/tr[2]/td/table/tbody/tr[2]/td/table/tbody").text
   t = plainT.tr('０-９ａ-ｚＡ-Ｚ．（）　－','0-9a-zA-Z.() -').split("\n\n")
+  p t
   finalOutputs = Array.new(2)
 
   2.times do |i|
     timetable  = t[i].split(/\(.\)\n|神楽坂\(昼間\)\n|葛飾\(昼間\)\n|野田\n|長万部\n|諏訪\n/)
+    p timetable[0]
     numOfClasses = timetable.length-1
+
     theday = Date.strptime(timetable[0],"%m月%d日")
     thedayYmd = theday.strftime("%Y/%m/%d")
+    if today.month == 12 && thedayYmd.month == 1
+      thedayYmd = thedayYmd.next_year
+    end
+
     outputArr = Array.new
 
     numOfClasses.times do |j|
@@ -153,7 +160,7 @@ until countD == nMonthEndDay + 1 || countD == nMonthEndDay + 2
 
   countD += 2
 
-  if countD == nMonthFirstDay || countD == nMonthFirstDay + 1
+  if countD == limitMonthFirstDay || countD == limitMonthFirstDay + 1
     driver.find_element(:id, 'form1:Poa00101A:nextMonth').click
     sleep 3
   end

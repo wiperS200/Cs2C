@@ -28,5 +28,5 @@ $ ruby Cs2C.rb
 
 ## License
 
-This code is licensed under AGPL-3.0. See LICENSE file. See `LICENSE`.
+This code is licensed under AGPL-3.0. See `LICENSE`.
 

@@ -2,12 +2,14 @@ require 'selenium-webdriver'
 require 'csv'
 require 'date'
 require 'io/console'
+require 'optparse'
 
 # Selenium::WebDriver::Firefox.driver_path = "geckodriver/geckodriver.exe" neriでコンパイルの際はコメントアウトを取る
 
 # 時間いろいろ
 today = Date.today
 rangeOfMonths = 2
+
 limitMonthDate = today >> rangeOfMonths-1
 limitMonthFirstDay = Date.new(limitMonthDate.year, limitMonthDate.month,  1)
 limitMonthEndDay   = Date.new(limitMonthDate.year, limitMonthDate.month, -1)
@@ -18,13 +20,6 @@ _4gen = ["14:30:00", "16:00:00", "14:20:00"]
 _5gen = ["16:10:00", "17:40:00", "16:00:00"]
 _6gen = ["18:00:00", "19:30:00", "17:50:00"]
 _7gen = ["19:40:00", "21:10:00", "19:30:00"]
-
-
-# csv作成
-CSV.open("#{Dir.home}/Documents/Cs2C_#{today}.csv", "w") do |header|
-  header << ["件名","開始日","開始時刻","終了日","終了時刻","終日イベント","アラーム オン/オフ","アラーム日付","アラーム時刻","内容"]
-end
-
 
 print "Cs2C ～CLASSのスケジュールをCSVにするやつ～ \n\n"
 
@@ -85,19 +80,22 @@ else
   print "休講情報はありません"
 end
 
+# csv作成
+CSV.open("#{Dir.home}/Documents/Cs2C_#{id.chomp}_#{today}.csv", "w") do |header|
+  header << ["件名","開始日","開始時刻","終了日","終了時刻","終日イベント","アラーム オン/オフ","アラーム日付","アラーム時刻","内容"]
+end
 
+# メイン処理
 countD = today
 
 until countD == limitMonthEndDay + 1 || countD == limitMonthEndDay + 2
   print "\n#{countD.month}月#{countD.day}日とその翌日の時間割を取得\n"
   plainT = driver.find_element(:xpath, "/html/body/div/div/form[3]/table[2]/tbody/tr/td[2]/table/tbody/tr[3]/td/div/div/table/tbody/tr[2]/td/table/tbody/tr[2]/td/table/tbody").text
   t = plainT.tr('０-９ａ-ｚＡ-Ｚ．（）　－','0-9a-zA-Z.() -').split("\n\n")
-  p t
   finalOutputs = Array.new(2)
 
   2.times do |i|
     timetable  = t[i].split(/\(.\)\n|神楽坂\(昼間\)\n|葛飾\(昼間\)\n|野田\n|長万部\n|諏訪\n/)
-    p timetable[0]
     numOfClasses = timetable.length-1
 
     theday = Date.strptime(timetable[0],"%m月%d日")
@@ -150,7 +148,7 @@ until countD == limitMonthEndDay + 1 || countD == limitMonthEndDay + 2
     end
   end
     
-  CSV.open("#{Dir.home}/Documents/Cs2C_#{today}.csv", "a") do |csv|
+  CSV.open("#{Dir.home}/Documents/Cs2C_#{id.chomp}_#{today}.csv", "a") do |csv|
     finalOutputs.each do |days|
       days.each do |classes|
         csv << classes
@@ -171,7 +169,7 @@ end
 driver.quit
 
 j
-print "時間割は #{Dir.home}/Documents/Cs2C_#{today}.csv に保存されました\n"
+print "時間割は #{Dir.home}/Documents/Cs2C_#{id.chomp}_#{today}.csv に保存されました\n"
 print "\nGoogleカレンダーにインポートするページを開きますか？(Google アカウントが必要です) y/n [Enter]で決定\n"
 importYN = gets.chomp
 if importYN == "y"

@@ -14,7 +14,7 @@ $ ruby Cs2C.rb
 
 ### 必要なもの
 
-- Ruby 2.5.1
+- Ruby 2.5.1 以上
 - Firefox  
 - [geckodriver](https://github.com/mozilla/geckodriver/releases) 
 - gem "selenium-webdriver"

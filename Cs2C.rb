@@ -81,7 +81,8 @@ else
 end
 
 # csv作成
-CSV.open("#{Dir.home}/Documents/Cs2C_#{id.chomp}_#{today}.csv", "w") do |header|
+csvPath = "#{Dir.home}/Documents/Cs2C_#{id.chomp}_#{today}.csv"
+CSV.open(csvPath, "w") do |header|
   header << ["件名","開始日","開始時刻","終了日","終了時刻","終日イベント","アラーム オン/オフ","アラーム日付","アラーム時刻","内容"]
 end
 
@@ -148,7 +149,7 @@ until countD == limitMonthEndDay + 1 || countD == limitMonthEndDay + 2
     end
   end
     
-  CSV.open("#{Dir.home}/Documents/Cs2C_#{id.chomp}_#{today}.csv", "a") do |csv|
+  CSV.open(csvPath, "a") do |csv|
     finalOutputs.each do |days|
       days.each do |classes|
         csv << classes
@@ -169,7 +170,7 @@ end
 driver.quit
 
 j
-print "時間割は #{Dir.home}/Documents/Cs2C_#{id.chomp}_#{today}.csv に保存されました\n"
+print "時間割は #{csvPath} に保存されました\n"
 print "\nGoogleカレンダーにインポートするページを開きますか？(Google アカウントが必要です) y/n [Enter]で決定\n"
 importYN = gets.chomp
 if importYN == "y"

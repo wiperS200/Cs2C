@@ -9,6 +9,7 @@ Cs2C は，東京理科大学の学生向けシステム「[CLASS](https://class
 
 ```
 $ git clone https://github.com/wiperS200/Cs2C.git
+$ bundle install
 $ ruby Cs2C.rb
 ```
 
@@ -17,7 +18,6 @@ $ ruby Cs2C.rb
 - Ruby 2.5.1 以上
 - Firefox  
 - [geckodriver](https://github.com/mozilla/geckodriver/releases) 
-- gem "selenium-webdriver"
 
 ### 注意事項
 

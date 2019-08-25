@@ -9,6 +9,7 @@ Cs2C は，東京理科大学の学生向けシステム「[CLASS](https://class
 
 ```
 $ git clone https://github.com/wiperS200/Cs2C.git
+$ cd Cs2C
 $ bundle install
 $ ruby Cs2C.rb
 ```

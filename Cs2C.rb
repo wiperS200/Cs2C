@@ -23,81 +23,90 @@ _7gen = ["19:40:00", "21:10:00", "19:30:00"]
 
 
 
+class Preparation
+  def startSelenium
+    options = Selenium::WebDriver::Firefox::Options.new(args: ['-headless'])
+    @driver = Selenium::WebDriver.for(:firefox , options: options)
+    @driver.get "https://class.admin.tus.ac.jp/up/faces/login/Com00501A.jsp"
+  end
 
-def startSelenium
-  options = Selenium::WebDriver::Firefox::Options.new(args: ['-headless'])
-  @driver = Selenium::WebDriver.for(:firefox , options: options)
-  @driver.get "https://class.admin.tus.ac.jp/up/faces/login/Com00501A.jsp"
+
+
+  def login
+    begin
+      puts "学籍番号を入力してください [Enter]で決定: "
+      @id = gets
+      puts "パスワードを入力してください(表示されません) [Enter]で決定: "
+      pw = STDIN.noecho(&:gets)
+      puts
+      @driver.find_element(:name, 'form1:htmlUserId'  ).send_key @id.chomp
+      @driver.find_element(:name, 'form1:htmlPassword').send_key pw.chomp
+      @driver.find_element(:name, 'form1:login'       ).click
+      sleep 3
+      # ログインできなかった場合例外が出るようにしてやり直させる処理
+      check = @driver.find_element(:id, 'form1:Poa00101A:htmlDate_month')
+    rescue
+      @driver.find_element(:name, 'form1:htmlUserId'  ).clear
+      @driver.find_element(:name, 'form1:htmlPassword').clear
+      puts "ログインできませんでした.再度入力してください"
+      retry
+    end
+  end
+
+  def getKyuko(i)
+    5.times do |j|
+      begin
+        p driver.find_element(:id, "form1:Poa00201A:htmlParentTable:#{i}:htmlDetailTbl:#{j}:htmlTitleCol1").text.tr('０-９ａ-ｚＡ-Ｚ．（）－','0-9a-zA-Z.()-').split(/　/)
+  
+        kyuko = driver.find_element(:id, "form1:Poa00201A:htmlParentTable:#{i}:htmlDetailTbl:#{j}:htmlTitleCol1").text.tr('０-９ａ-ｚＡ-Ｚ．（）－','0-9a-zA-Z.()-').split(/　/)
+      rescue
+        break
+      end
+  
+      if kyuko.length == 6
+        kyuko[4] = kyuko[4..5].join(' ')
+        kyuko.pop
+      end
+  #    ↓曜日と年の処理要工夫
+  #    kyukoDay = Date.strptime(kyuko[1],"%m月%d日"); p kyukoDay
+      p kyuko
+    end
+  end
+  
+  #休講情報
+  if driver.find_element(:id, "form1:Poa00201A:htmlParentTable:3:htmlHeaderTbl:0:htmlHeaderCol").text == "休講"
+    getKyuko(3)
+  elsif driver.find_element(:id, "form1:Poa00201A:htmlParentTable:4:htmlHeaderTbl:0:htmlHeaderCol").text == "休講"
+    getKyuko(4)
+  else
+    puts "休講情報はありません"
+  end
+  
+  # csv作成
+  def createCSVfile
+    csvPath = "#{Dir.home}/Documents/Cs2C_#{@id.chomp}_#{today}.csv"
+    CSV.open(csvPath, "w") do |header|
+      header << ["件名","開始日","開始時刻","終了日","終了時刻","終日イベント","アラーム オン/オフ","アラーム日付","アラーム時刻","内容"]
+    end
+  end
+
 end
+
+starting = Preparation.new
 
 puts "Cs2C ～CLASSのスケジュールをCSVにするやつ～"
 puts
 
-startSelenium
 
 puts "CLASSのログインに使う情報が必要です ※入力された情報は処理終了後に破棄されます"
 
-def login
-  begin
-    puts "学籍番号を入力してください [Enter]で決定: "
-    id = gets
-    puts "パスワードを入力してください(表示されません) [Enter]で決定: "
-    pw = STDIN.noecho(&:gets)
-    puts
-    @driver.find_element(:name, 'form1:htmlUserId'  ).send_key id.chomp
-    @driver.find_element(:name, 'form1:htmlPassword').send_key pw.chomp
-    @driver.find_element(:name, 'form1:login'       ).click
-    sleep 3
-    # ログインできなかった場合例外が出るようにしてやり直させる処理
-    check = @driver.find_element(:id, 'form1:Poa00101A:htmlDate_month')
-  rescue
-    @driver.find_element(:name, 'form1:htmlUserId'  ).clear
-    @driver.find_element(:name, 'form1:htmlPassword').clear
-    puts "ログインできませんでした.再度入力してください"
-    retry
-  end
-end
+starting.startSelenium
+starting.login
+starting.createCSVfile
 
-login
 
-def getKyuko(i)
-  5.times do |j|
-    begin
-      p driver.find_element(:id, "form1:Poa00201A:htmlParentTable:#{i}:htmlDetailTbl:#{j}:htmlTitleCol1").text.tr('０-９ａ-ｚＡ-Ｚ．（）－','0-9a-zA-Z.()-').split(/　/)
 
-      kyuko = driver.find_element(:id, "form1:Poa00201A:htmlParentTable:#{i}:htmlDetailTbl:#{j}:htmlTitleCol1").text.tr('０-９ａ-ｚＡ-Ｚ．（）－','0-9a-zA-Z.()-').split(/　/)
-    rescue
-      break
-    end
 
-    if kyuko.length == 6
-      kyuko[4] = kyuko[4..5].join(' ')
-      kyuko.pop
-    end
-#    ↓曜日と年の処理要工夫
-#    kyukoDay = Date.strptime(kyuko[1],"%m月%d日"); p kyukoDay
-    p kyuko
-  end
-end
-
-#休講情報
-if driver.find_element(:id, "form1:Poa00201A:htmlParentTable:3:htmlHeaderTbl:0:htmlHeaderCol").text == "休講"
-  getKyuko(3)
-elsif driver.find_element(:id, "form1:Poa00201A:htmlParentTable:4:htmlHeaderTbl:0:htmlHeaderCol").text == "休講"
-  getKyuko(4)
-else
-  puts "休講情報はありません"
-end
-
-# csv作成
-def createCSVfile
-  csvPath = "#{Dir.home}/Documents/Cs2C_#{id.chomp}_#{today}.csv"
-  CSV.open(csvPath, "w") do |header|
-    header << ["件名","開始日","開始時刻","終了日","終了時刻","終日イベント","アラーム オン/オフ","アラーム日付","アラーム時刻","内容"]
-  end
-end
-
-createCSVfile
 
 # メイン処理
 countD = today

@@ -35,28 +35,28 @@ puts
 
 startSelenium
 
-
 puts "CLASSのログインに使う情報が必要です ※入力された情報は処理終了後に破棄されます"
 
-begin
-  print "\n学籍番号を入力してください [Enter]で決定: \n"
-  id = gets
-  print "\nパスワードを入力してください(表示されません) [Enter]で決定: \n"
-  pw = STDIN.noecho(&:gets)
-  puts
-  driver.find_element(:name, 'form1:htmlUserId'  ).send_key id.chomp
-  driver.find_element(:name, 'form1:htmlPassword').send_key pw.chomp
-  driver.find_element(:name, 'form1:login'       ).click
-  sleep 3
-  # ログインできなかった場合例外が出るようにしてやり直させる処理
-  check = driver.find_element(:id, 'form1:Poa00101A:htmlDate_month')
-rescue
-  driver.find_element(:name, 'form1:htmlUserId'  ).clear
-  driver.find_element(:name, 'form1:htmlPassword').clear
-  print "\nログインできませんでした.再度入力してください\n"
-  retry
+def login
+  begin
+    puts "学籍番号を入力してください [Enter]で決定: "
+    id = gets
+    puts "パスワードを入力してください(表示されません) [Enter]で決定: "
+    pw = STDIN.noecho(&:gets)
+    puts
+    @driver.find_element(:name, 'form1:htmlUserId'  ).send_key id.chomp
+    @driver.find_element(:name, 'form1:htmlPassword').send_key pw.chomp
+    @driver.find_element(:name, 'form1:login'       ).click
+    sleep 3
+    # ログインできなかった場合例外が出るようにしてやり直させる処理
+    check = @driver.find_element(:id, 'form1:Poa00101A:htmlDate_month')
+  rescue
+    @driver.find_element(:name, 'form1:htmlUserId'  ).clear
+    @driver.find_element(:name, 'form1:htmlPassword').clear
+    puts "ログインできませんでした.再度入力してください"
+    retry
+  end
 end
-
 
 def getKyuko(i)
   5.times do |j|

@@ -97,12 +97,14 @@ def createCSVfile
   end
 end
 
+createCSVfile
 
 # メイン処理
 countD = today
 
 until countD == limitMonthEndDay + 1 || countD == limitMonthEndDay + 2
-  print "\n#{countD.month}月#{countD.day}日とその翌日の時間割を取得\n"
+  puts
+  puts "#{countD.month}月#{countD.day}日とその翌日の時間割を取得"
   plainT = driver.find_element(:xpath, "/html/body/div/div/form[3]/table[2]/tbody/tr/td[2]/table/tbody/tr[3]/td/div/div/table/tbody/tr[2]/td/table/tbody/tr[2]/td/table/tbody").text
   t = plainT.tr('０-９ａ-ｚＡ-Ｚ．（）　－','0-9a-zA-Z.() -').split("\n\n")
   finalOutputs = Array.new(2)
@@ -182,14 +184,14 @@ end
 driver.quit
 
 
-print "時間割は #{csvPath} に保存されました\n"
-print "\nGoogleカレンダーにインポートするページを開きますか？(Google アカウントが必要です) y/n [Enter]で決定\n"
+puts "時間割は #{csvPath} に保存されました"
+puts "Googleカレンダーにインポートするページを開きますか？(Google アカウントが必要です) y/n [Enter]で決定"
 importYN = gets.chomp
 if importYN == "y"
   driver = Selenium::WebDriver.for :firefox
   driver.get "https://accounts.google.com/signin/v2/identifier?service=cl&passive=1209600&osid=1&continue=https%3A%2F%2Fcalendar.google.com%2Fcalendar%2Fr%2Fsettings%2Fexport%3Fhl%3Dja%26pli%3D1%26t%3DAKUaPmYIRBe3_yaaGlejZty0zA2lbUaPkI_6HELntaaPTRigqhwXXeokgrIYjbVOINuuYdVw_riL9vtUI_U1cgxMSlXPG5u9IA%253D%253D&followup=https%3A%2F%2Fcalendar.google.com%2Fcalendar%2Fr%2Fsettings%2Fexport%3Fhl%3Dja%26pli%3D1%26t%3DAKUaPmYIRBe3_yaaGlejZty0zA2lbUaPkI_6HELntaaPTRigqhwXXeokgrIYjbVOINuuYdVw_riL9vtUI_U1cgxMSlXPG5u9IA%253D%253D&hl=ja&scc=1&flowName=GlifWebSignIn&flowEntry=ServiceLogin"
 else
-  print "プログラムを終了します\n"
+  puts "プログラムを終了します"
   sleep 2
   exit
 end

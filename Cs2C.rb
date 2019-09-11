@@ -58,6 +58,8 @@ def login
   end
 end
 
+login
+
 def getKyuko(i)
   5.times do |j|
     begin
@@ -84,14 +86,17 @@ if driver.find_element(:id, "form1:Poa00201A:htmlParentTable:3:htmlHeaderTbl:0:h
 elsif driver.find_element(:id, "form1:Poa00201A:htmlParentTable:4:htmlHeaderTbl:0:htmlHeaderCol").text == "休講"
   getKyuko(4)
 else
-  print "休講情報はありません"
+  puts "休講情報はありません"
 end
 
 # csv作成
-csvPath = "#{Dir.home}/Documents/Cs2C_#{id.chomp}_#{today}.csv"
-CSV.open(csvPath, "w") do |header|
-  header << ["件名","開始日","開始時刻","終了日","終了時刻","終日イベント","アラーム オン/オフ","アラーム日付","アラーム時刻","内容"]
+def createCSVfile
+  csvPath = "#{Dir.home}/Documents/Cs2C_#{id.chomp}_#{today}.csv"
+  CSV.open(csvPath, "w") do |header|
+    header << ["件名","開始日","開始時刻","終了日","終了時刻","終日イベント","アラーム オン/オフ","アラーム日付","アラーム時刻","内容"]
+  end
 end
+
 
 # メイン処理
 countD = today
@@ -176,7 +181,7 @@ until countD == limitMonthEndDay + 1 || countD == limitMonthEndDay + 2
 end
 driver.quit
 
-j
+
 print "時間割は #{csvPath} に保存されました\n"
 print "\nGoogleカレンダーにインポートするページを開きますか？(Google アカウントが必要です) y/n [Enter]で決定\n"
 importYN = gets.chomp

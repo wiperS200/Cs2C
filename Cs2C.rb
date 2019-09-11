@@ -21,15 +21,22 @@ _5gen = ["16:10:00", "17:40:00", "16:00:00"]
 _6gen = ["18:00:00", "19:30:00", "17:50:00"]
 _7gen = ["19:40:00", "21:10:00", "19:30:00"]
 
-print "Cs2C ～CLASSのスケジュールをCSVにするやつ～ \n\n"
-
-options = Selenium::WebDriver::Firefox::Options.new(args: ['-headless'])
-driver = Selenium::WebDriver.for(:firefox , options: options)
-
-driver.get "https://class.admin.tus.ac.jp/up/faces/login/Com00501A.jsp"
 
 
-print "CLASSのログインに使う情報が必要です ※入力された情報は処理終了後に破棄されます\n"
+
+def startSelenium
+  options = Selenium::WebDriver::Firefox::Options.new(args: ['-headless'])
+  @driver = Selenium::WebDriver.for(:firefox , options: options)
+  @driver.get "https://class.admin.tus.ac.jp/up/faces/login/Com00501A.jsp"
+end
+
+puts "Cs2C ～CLASSのスケジュールをCSVにするやつ～"
+puts
+
+startSelenium
+
+
+puts "CLASSのログインに使う情報が必要です ※入力された情報は処理終了後に破棄されます"
 
 begin
   print "\n学籍番号を入力してください [Enter]で決定: \n"
